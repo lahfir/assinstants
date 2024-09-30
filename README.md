@@ -69,19 +69,15 @@ assinstants/
 
 ## Setup and Execution Flow Diagram
 
-[![Setup and Execution Flow Diagram](./Images/Setup%20and%20Execution%20Flow%20Diagram.png)]
+![Setup and Execution Flow Diagram](./Images/Setup%20and%20Execution%20Flow%20Diagram.png)
 
 ## Run Execution and Tool Usage Diagram
 
-[![Run Execution and Tool Usage Diagram](./Images/Run%20Execution%20and%20Tool%20Usage%20Flowchart.png)]
-
-## Component Interaction Diagram
-
-[![Component Interaction Diagram](./Images/Component%20Interaction%20Diagram.png)]
+![Run Execution and Tool Usage Diagram](./Images/Run%20Execution%20and%20Tool%20Usage%20Flowchart.png)
 
 ## Asynchronous Operation Diagram
 
-[![Asynchronous Operation Diagram](./Images/Asynchronous%20Operation%20Diagram.png)]
+![Asynchronous Operation Diagram](./Images/Asynchronous%20Operation%20Diagram.png)
 
 ## Quick Start Guide
 
