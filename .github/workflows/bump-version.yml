@@ -30,7 +30,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          cz bump --yes
+          cz bump --yes --changelog
 
       - name: Push changes
         uses: ad-m/github-push-action@master
