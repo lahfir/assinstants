@@ -26,11 +26,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install commitizen
 
+      - name: Debug information
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Files in current directory:"
+          ls -la
+          echo "Content of .cz.toml:"
+          cat .cz.toml
+          echo "Git log (last 5 commits):"
+          git log -n 5 --oneline
+
       - name: Bump version and create changelog
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          cz bump --yes --changelog
+          cz bump --yes --changelog || cz bump --yes --increment PATCH
 
       - name: Push changes
         uses: ad-m/github-push-action@master
