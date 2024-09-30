@@ -69,19 +69,15 @@ assinstants/
 
 ## Setup and Execution Flow Diagram
 
-[![Setup and Execution Flow Diagram](./Images/Setup%20and%20Execution%20Flow%20Diagram.png)]
+![Setup and Execution Flow Diagram](./Images/Setup%20and%20Execution%20Flow%20Diagram.png)
 
 ## Run Execution and Tool Usage Diagram
 
-[![Run Execution and Tool Usage Diagram](./Images/Run%20Execution%20and%20Tool%20Usage%20Flowchart.png)]
-
-## Component Interaction Diagram
-
-[![Component Interaction Diagram](./Images/Component%20Interaction%20Diagram.png)]
+![Run Execution and Tool Usage Diagram](./Images/Run%20Execution%20and%20Tool%20Usage%20Flowchart.png)
 
 ## Asynchronous Operation Diagram
 
-[![Asynchronous Operation Diagram](./Images/Asynchronous%20Operation%20Diagram.png)]
+![Asynchronous Operation Diagram](./Images/Asynchronous%20Operation%20Diagram.png)
 
 ## Quick Start Guide
 
@@ -184,22 +180,32 @@ async def main():
 
 ```python
 from assinstants.models.function import FunctionDefinition, FunctionParameter
+from assinstants.models.tool import Tool, FunctionTool
 
 def calculate_square_root(x: float) -> float:
     return x ** 0.5
 
-square_root_function = FunctionDefinition(
-    name="calculate_square_root",
-    description="Calculate the square root of a number",
-    parameters={
-        "x": FunctionParameter(type="number", description="The number to calculate the square root of")
-    },
-    implementation=calculate_square_root
-)
+tools = [
+    Tool(
+        tool=FunctionTool(
+            function=FunctionDefinition(
+                name="calculate_square_root",
+                description="Calculate the square root of a number",
+                parameters={
+                    "x": FunctionParameter(
+                        type="number",
+                        description="The number to calculate the square root of"
+                    )
+                },
+                implementation=calculate_square_root
+            )
+        )
+    )
+]
 
 assistant = await assistant_manager.create_assistant(
     name="Math Assistant",
-    tools=[square_root_function],
+    tools=tools,
     ...
 )
 ```
@@ -244,24 +250,35 @@ To add new tools or functions to assistants, create `FunctionDefinition` objects
 
 ```python
 from assinstants.models.function import FunctionDefinition, FunctionParameter
+from assinstants.models.tool import Tool, FunctionTool
 
 def my_custom_function(param1: str, param2: float) -> str:
     # Your function logic here
     return f"Result: {param1}, {param2}"
 
-custom_function = FunctionDefinition(
-    name="my_custom_function",
-    description="Description of what the function does",
-    parameters={
-        "param1": FunctionParameter(type="string", description="Description of param1"),
-        "param2": FunctionParameter(type="number", description="Description of param2")
-    },
-    implementation=my_custom_function
-)
+tools = [
+    Tool(
+        tool=FunctionTool(
+            function=FunctionDefinition(
+                name="my_custom_function",
+                description="Description of what the function does",
+                parameters={
+                    "param1": FunctionParameter(
+                        type="string", description="Description of param1"
+                    ),
+                    "param2": FunctionParameter(
+                        type="number", description="Description of param2"
+                    ),
+                },
+                implementation=my_custom_function,
+            )
+        )
+    )
+]
 
 assistant = await assistant_manager.create_assistant(
     name="Custom Assistant",
-    tools=[custom_function],
+    tools=tools,
     ...
 )
 ```
