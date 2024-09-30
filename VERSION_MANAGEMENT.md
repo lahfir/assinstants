@@ -65,12 +65,6 @@ setup(
    git push origin vX.Y.Z
    ```
 
-3. Create a GitHub Release with release notes.
-
-4. Publish to PyPI:
-   ```
-   python setup.py sdist bdist_wheel
-   twine upload dist/*
-   ```
+3. Create a PR with the release notes.
 
 By following this strategy, we can maintain multiple versions, work on new features, and provide a clear upgrade path for users.
