@@ -87,23 +87,16 @@ Here's a basic example of how to use the LLM Assistant Framework:
 import asyncio
 import aiohttp
 from assinstants import AssistantManager, ThreadManager, RunManager
-from assinstants.models.function import (
-    FunctionDefinition,
-    FunctionParameter,
-)
+from assinstants.models.function import FunctionDefinition, FunctionParameter
 from assinstants.models.tool import Tool, FunctionTool
-from assinstants.utils.exceptions import (
-    RunExecutionError,
-    FunctionNotFoundError,
-    FunctionExecutionError,
-)
+from assinstants.utils.exceptions import RunExecutionError, FunctionNotFoundError, FunctionExecutionError
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
 OPENWEATHERMAP_API_KEY = ""
 
-
+# Custom LLM function to generate responses (This could be any LLM function (OpenAI, Anthropic, Ollama, Claude ...)))
 async def custom_llm_function(model: str, prompt: str, **kwargs) -> str:
     async with aiohttp.ClientSession() as session:
         try:
@@ -119,13 +112,12 @@ async def custom_llm_function(model: str, prompt: str, **kwargs) -> str:
         except Exception as e:
             return f"Error: {str(e)}"
 
-
+# Function to fetch weather data
 async def get_weather(city: str, country_code: str) -> dict:
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city},{country_code}&appid={OPENWEATHERMAP_API_KEY}&units=metric"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             data = await response.json()
-            print(f"Weather data: {data}")
             if response.status == 200:
                 logging.debug(f"Weather data: {data}")
                 return {
@@ -135,16 +127,15 @@ async def get_weather(city: str, country_code: str) -> dict:
                     "wind_speed": data["wind"]["speed"],
                 }
             else:
-                raise Exception(
-                    f"Error fetching weather data for {city}, {country_code}: {data.get('message', 'Unknown error')}"
-                )
-
+                raise Exception(f"Error fetching weather data: {data.get('message', 'Unknown error')}")
 
 async def main():
+    # Initialize managers
     assistant_manager = AssistantManager()
     thread_manager = ThreadManager()
     run_manager = RunManager(assistant_manager, thread_manager)
 
+    # Define tools
     tools = [
         Tool(
             tool=FunctionTool(
@@ -152,12 +143,8 @@ async def main():
                     name="get_weather",
                     description="Get current weather for a city",
                     parameters={
-                        "city": FunctionParameter(
-                            type="string", description="City name"
-                        ),
-                        "country_code": FunctionParameter(
-                            type="string", description="Two-letter country code"
-                        ),
+                        "city": FunctionParameter(type="string", description="City name"),
+                        "country_code": FunctionParameter(type="string", description="Two-letter country code"),
                     },
                     implementation=get_weather,
                 )
@@ -165,20 +152,23 @@ async def main():
         )
     ]
 
+    # Create assistant
     assistant = await assistant_manager.create_assistant(
         name="Weather Assistant",
-        instructions="""You are a weather assistant.""",
+        instructions="You are a weather assistant.",
         model="llama3",
         custom_llm_function=custom_llm_function,
         tools=tools,
         temperature=0.7,
     )
 
+    # Create thread and add assistant
     thread = await thread_manager.create_thread()
     await thread_manager.add_assistant_to_thread(thread.id, assistant)
 
     print("Welcome to the Weather Assistant! Type 'exit' to end the conversation.")
 
+    # Main conversation loop
     while True:
         user_query = input("You: ")
         if user_query.lower() == "exit":
@@ -188,19 +178,15 @@ async def main():
         await thread_manager.add_message(thread.id, "user", user_query)
 
         try:
-            run = await run_manager.create_and_execute_run(thread.id)
+            # Execute run and get response
+            await run_manager.create_and_execute_run(thread.id)
             messages = await thread_manager.get_messages(thread.id)
             final_answer = messages[-1].content if messages else "No response generated"
             print(f"Assistant: {final_answer}")
-        except RunExecutionError as e:
-            print(f"Run execution error: {str(e)}")
-        except FunctionNotFoundError as e:
-            print(f"Function not found error: {str(e)}")
-        except FunctionExecutionError as e:
-            print(f"Function execution error: {str(e)}")
+        except (RunExecutionError, FunctionNotFoundError, FunctionExecutionError) as e:
+            print(f"Error: {str(e)}")
         except Exception as e:
-            print(f"An error occurred: {str(e)}")
-
+            print(f"An unexpected error occurred: {str(e)}")
 
 if __name__ == "__main__":
     asyncio.run(main())
