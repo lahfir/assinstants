@@ -14,6 +14,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/lahfir/assinstants",
     packages=find_packages(include=["assinstants", "assinstants.*"]),
+    package_data={"assinstants": ["py.typed"]},
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
@@ -24,6 +25,7 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
+        "Typing :: Typed",
     ],
     python_requires=">=3.7",
     install_requires=[

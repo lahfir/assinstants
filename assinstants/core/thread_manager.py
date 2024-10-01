@@ -1,10 +1,10 @@
 # core/thread_manager.py
 from ..models.thread import Thread
-from ..models.message import Message
-from typing import List, Union, Literal, Dict, Optional
 from ..models.assistant import Assistant
+from typing import Dict, List, Union, Literal, Optional
 from datetime import datetime
 from ..utils.logging_utils import log
+from ..models.message import Message
 
 
 class ThreadManager:
