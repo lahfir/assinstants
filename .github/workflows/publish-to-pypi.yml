@@ -13,7 +13,9 @@ jobs:
     needs: test
     name: Build and publish to PyPI
     runs-on: ubuntu-latest
-    environment: release
+    environment:
+      name: release
+      url: https://pypi.org/p/assinstants
     permissions:
       id-token: write
 
