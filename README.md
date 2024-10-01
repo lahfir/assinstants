@@ -363,6 +363,10 @@ For bug reports or feature requests, please open an issue on the GitHub reposito
 
 For detailed information on our version management and branching strategy, please refer to the [VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md) file. This document outlines our approach to semantic versioning, branching strategy, and release process.
 
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
 ## Contributing
 
 I welcome contributions from the community to help implement these features and improve the framework. If you're interested in working on any of these items, please check our issues page or open a new issue to discuss your ideas:
