@@ -67,4 +67,38 @@ setup(
 
 3. Create a PR with the release notes.
 
-By following this strategy, we can maintain multiple versions, work on new features, and provide a clear upgrade path for users.
+## Commit Message Guidelines
+
+We follow the Conventional Commits specification. Here's a quick guide for common commit types:
+
+- feat: New feature
+  Example: feat(auth): add login functionality
+
+- fix: Bug fix
+  Example: fix(api): resolve user data fetch issue
+
+- docs: Documentation changes
+  Example: docs(README): update installation instructions
+
+- style: Code style changes (formatting, missing semi colons, etc)
+  Example: style(global): convert tabs to spaces
+
+- refactor: Code refactoring
+  Example: refactor(database): optimize query performance
+
+- test: Adding or modifying tests
+  Example: test(utils): add unit tests for string helpers
+
+- chore: Maintenance tasks
+  Example: chore(deps): update dependencies
+
+For breaking changes, add BREAKING CHANGE: in the commit body or footer.
+
+Example:
+feat(api): change user authentication flow
+
+BREAKING CHANGE: `loginUser` now returns a Promise instead of a callback
+
+## Commit Message Format
+
+Each commit message consists of a header, a body, and a footer. The header has a special format that includes a type, an optional scope, and a subject:
