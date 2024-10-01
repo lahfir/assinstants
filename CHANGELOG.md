@@ -1,3 +1,15 @@
+## v1.1.0 (2024-10-01)
+
+### Feat
+
+- **run_manager**: Include function parameters in assistant formatting
+
+## v1.0.6 (2024-10-01)
+
+## v1.0.5 (2024-10-01)
+
+## v1.0.4 (2024-10-01)
+
 ## v1.0.3 (2024-10-01)
 
 ### Fix
