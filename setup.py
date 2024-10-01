@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="assinstants",
     use_scm_version={
-        "write_to": "_version.py",
+        "write_to": "assinstants/_version.py",
         "write_to_template": '__version__ = "{version}"',
     },
     setup_requires=["setuptools_scm"],
