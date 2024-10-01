@@ -474,5 +474,14 @@ Important instructions:
                 if isinstance(tool.tool, FunctionTool):
                     func = tool.tool.function
                     formatted_output += f"  - {func.name}: {func.description}\n"
+                    formatted_output += "    Parameters:\n"
+                    for param_name, param in func.parameters.items():
+                        formatted_output += (
+                            f"      {param_name}: {param.type} - {param.description}\n"
+                        )
+                        if param.enum:
+                            formatted_output += (
+                                f"Allowed values: {', '.join(param.enum)}\n"
+                            )
             formatted_output += "\n"
         return formatted_output
