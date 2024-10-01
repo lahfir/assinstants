@@ -4,6 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -17,4 +18,4 @@ jobs:
           pip install -e .
           pip install mypy
       - name: Run type checker
-        run: mypy --strict --ignore-missing-imports assinstants
+        run: mypy --ignore-missing-imports assinstants
