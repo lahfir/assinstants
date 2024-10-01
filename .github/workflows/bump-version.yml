@@ -1,4 +1,4 @@
-name: Bump version
+name: Bump version and Create Release
 
 on:
   push:
@@ -9,11 +9,11 @@ jobs:
   test:
     uses: ./.github/workflows/ci.yml
 
-  bump-version:
+  bump-version-and-release:
     needs: test
     if: "!startsWith(github.event.head_commit.message, 'bump:')"
     runs-on: ubuntu-latest
-    name: "Bump version and create changelog with commitizen"
+    name: "Bump version, create changelog, and release"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -31,10 +31,15 @@ jobs:
           pip install commitizen
 
       - name: Bump version and create changelog
+        id: cz
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           cz bump --yes --changelog || cz bump --yes --increment PATCH
+          echo "version=$(cz version --project)" >> $GITHUB_OUTPUT
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          cz changelog >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Push changes
         uses: ad-m/github-push-action@master
@@ -42,3 +47,14 @@ jobs:
           github_token: ${{ secrets.PAT }}
           branch: ${{ github.ref }}
           tags: true
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+        with:
+          tag_name: v${{ steps.cz.outputs.version }}
+          release_name: Release ${{ steps.cz.outputs.version }}
+          body: ${{ steps.cz.outputs.changelog }}
+          draft: false
+          prerelease: false
