@@ -1,3 +1,9 @@
+## v1.0.2 (2024-10-01)
+
+### Fix
+
+- setup fix and models init fix
+
 ## v1.0.1 (2024-10-01)
 
 ### Fix
