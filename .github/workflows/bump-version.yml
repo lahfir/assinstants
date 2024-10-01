@@ -11,7 +11,7 @@ jobs:
 
   bump-version-and-release:
     needs: test
-    if: "!startsWith(github.event.head_commit.message, 'bump:')"
+    if: ${{ !startsWith(github.event.head_commit.message, 'bump:') }}
     runs-on: ubuntu-latest
     name: "Bump version, create changelog, and release"
     steps:
@@ -41,6 +41,19 @@ jobs:
           cz changelog >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "# Release v${{ steps.cz.outputs.version }}" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "## What's Changed" >> $GITHUB_OUTPUT
+          echo "${{ steps.cz.outputs.changelog }}" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "## Full Changelog" >> $GITHUB_OUTPUT
+          echo "[Compare with previous release](https://github.com/${{ github.repository }}/compare/v$(git describe --tags --abbrev=0)...v${{ steps.cz.outputs.version }})" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
@@ -55,6 +68,6 @@ jobs:
         with:
           tag_name: v${{ steps.cz.outputs.version }}
           release_name: Release ${{ steps.cz.outputs.version }}
-          body: ${{ steps.cz.outputs.changelog }}
+          body: ${{ steps.release_notes.outputs.notes }}
           draft: false
           prerelease: false
