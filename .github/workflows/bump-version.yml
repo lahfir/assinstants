@@ -35,10 +35,15 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          output=$(cz bump --yes)
-          version=$(echo "$output" | grep -oP '(?<=tag: v).*')
+          output=$(cz bump --yes || echo "NO_BUMP")
+          if [[ $output == *"NO_BUMP"* ]]; then
+            echo "No new version to bump. Using current version."
+            version=$(cz version --project)
+          else
+            version=$(echo "$output" | grep -oP '(?<=tag: v).*')
+          fi
           echo "version=$version" >> $GITHUB_OUTPUT
-          changelog=$(cz changelog)
+          changelog=$(cz changelog || echo "No changes")
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
           echo "$changelog" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
