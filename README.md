@@ -85,7 +85,9 @@ Here's a basic example of how to use the LLM Assistant Framework:
 
 ```python
 import asyncio
-from assinstants import AssistantManager, ThreadManager, RunManager
+from assinstants.core.assistant_manager import AssistantManager
+from assinstants.core.thread_manager import ThreadManager
+from assinstants.core.run_manager import RunManager
 from assinstants.models.function import FunctionDefinition, FunctionParameter
 
 # Define a custom LLM function (replace with your actual implementation)

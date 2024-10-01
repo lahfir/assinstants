@@ -2,7 +2,7 @@ from .core.assistant_manager import AssistantManager
 from .core.thread_manager import ThreadManager
 from .core.run_manager import RunManager
 from .models.tool import Tool
-from .utils.logging_utils import set_logging, enable_logging
+from .utils.logging_utils import set_logging
 
 
 try:
@@ -16,6 +16,5 @@ __all__ = [
     "RunManager",
     "Tool",
     "set_logging",
-    "enable_logging",
     "__version__",
 ]
