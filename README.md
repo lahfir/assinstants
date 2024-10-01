@@ -359,10 +359,6 @@ I welcome contributions from the community to help implement these features and 
 
 For bug reports or feature requests, please open an issue on the GitHub repository.
 
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
 ## Version Management
 
 For detailed information on our version management and branching strategy, please refer to the [VERSION_MANAGEMENT.md](VERSION_MANAGEMENT.md) file. This document outlines our approach to semantic versioning, branching strategy, and release process.

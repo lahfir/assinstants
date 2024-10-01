@@ -35,10 +35,12 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          cz bump --yes --changelog || cz bump --yes --increment PATCH
-          echo "version=$(cz version --project)" >> $GITHUB_OUTPUT
+          output=$(cz bump --yes)
+          version=$(echo "$output" | grep -oP '(?<=tag: v).*')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          changelog=$(cz changelog)
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          cz changelog >> $GITHUB_OUTPUT
+          echo "$changelog" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Generate release notes
@@ -51,7 +53,7 @@ jobs:
           echo "${{ steps.cz.outputs.changelog }}" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo "## Full Changelog" >> $GITHUB_OUTPUT
-          echo "[Compare with previous release](https://github.com/${{ github.repository }}/compare/v$(git describe --tags --abbrev=0)...v${{ steps.cz.outputs.version }})" >> $GITHUB_OUTPUT
+          echo "[Compare with previous release](https://github.com/${{ github.repository }}/compare/v$(git describe --tags --abbrev=0 HEAD^)...v${{ steps.cz.outputs.version }})" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Push changes
