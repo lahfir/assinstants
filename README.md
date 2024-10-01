@@ -85,62 +85,125 @@ Here's a basic example of how to use the LLM Assistant Framework:
 
 ```python
 import asyncio
-from assinstants.core.assistant_manager import AssistantManager
-from assinstants.core.thread_manager import ThreadManager
-from assinstants.core.run_manager import RunManager
-from assinstants.models.function import FunctionDefinition, FunctionParameter
-
-# Define a custom LLM function (replace with your actual implementation)
-async def custom_llm_function(model: str, prompt: str, **kwargs):
-    # Implement your LLM API call here
-    return "LLM response"
-
-# Initialize managers
-assistant_manager = AssistantManager()
-thread_manager = ThreadManager()
-run_manager = RunManager(assistant_manager, thread_manager)
-
-# Define a tool
-def calculate_sum(a: float, b: float) -> float:
-    return a + b
-
-sum_function = FunctionDefinition(
-    name="calculate_sum",
-    description="Calculate the sum of two numbers",
-    parameters={
-        "a": FunctionParameter(type="number", description="First number"),
-        "b": FunctionParameter(type="number", description="Second number")
-    },
-    implementation=calculate_sum
+import aiohttp
+from assinstants import AssistantManager, ThreadManager, RunManager
+from assinstants.models.function import (
+    FunctionDefinition,
+    FunctionParameter,
 )
+from assinstants.models.tool import Tool, FunctionTool
+from assinstants.utils.exceptions import (
+    RunExecutionError,
+    FunctionNotFoundError,
+    FunctionExecutionError,
+)
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
+OPENWEATHERMAP_API_KEY = ""
+
+
+async def custom_llm_function(model: str, prompt: str, **kwargs) -> str:
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(
+                "http://localhost:11434/api/generate",
+                json={"model": model, "prompt": prompt, "stream": False, **kwargs},
+                timeout=aiohttp.ClientTimeout(total=30),
+            ) as response:
+                result = await response.json()
+                return result.get("response", "")
+        except asyncio.TimeoutError:
+            return "LLM request timed out"
+        except Exception as e:
+            return f"Error: {str(e)}"
+
+
+async def get_weather(city: str, country_code: str) -> dict:
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city},{country_code}&appid={OPENWEATHERMAP_API_KEY}&units=metric"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            data = await response.json()
+            print(f"Weather data: {data}")
+            if response.status == 200:
+                logging.debug(f"Weather data: {data}")
+                return {
+                    "temperature": data["main"]["temp"],
+                    "description": data["weather"][0]["description"],
+                    "humidity": data["main"]["humidity"],
+                    "wind_speed": data["wind"]["speed"],
+                }
+            else:
+                raise Exception(
+                    f"Error fetching weather data for {city}, {country_code}: {data.get('message', 'Unknown error')}"
+                )
+
 
 async def main():
-    # Create an assistant
+    assistant_manager = AssistantManager()
+    thread_manager = ThreadManager()
+    run_manager = RunManager(assistant_manager, thread_manager)
+
+    tools = [
+        Tool(
+            tool=FunctionTool(
+                function=FunctionDefinition(
+                    name="get_weather",
+                    description="Get current weather for a city",
+                    parameters={
+                        "city": FunctionParameter(
+                            type="string", description="City name"
+                        ),
+                        "country_code": FunctionParameter(
+                            type="string", description="Two-letter country code"
+                        ),
+                    },
+                    implementation=get_weather,
+                )
+            )
+        )
+    ]
+
     assistant = await assistant_manager.create_assistant(
-        name="Math Tutor",
-        instructions="You are a helpful math tutor.",
-        model="llama3.1",
+        name="Weather Assistant",
+        instructions="""You are a weather assistant.""",
+        model="llama3",
         custom_llm_function=custom_llm_function,
-        tools=[sum_function]
+        tools=tools,
+        temperature=0.7,
     )
 
-    # Create a thread
     thread = await thread_manager.create_thread()
-
-    # Add the assistant to the thread
     await thread_manager.add_assistant_to_thread(thread.id, assistant)
 
-    # Add a message to the thread
-    await thread_manager.add_message(thread.id, "user", "What's 2 + 2?")
+    print("Welcome to the Weather Assistant! Type 'exit' to end the conversation.")
 
-    # Run the assistant
-    run = await run_manager.create_and_execute_run(thread.id)
+    while True:
+        user_query = input("You: ")
+        if user_query.lower() == "exit":
+            print("Thank you for using the Weather Assistant. Goodbye!")
+            break
 
-    # Get the assistant's response
-    messages = await thread_manager.get_messages(thread.id)
-    print(messages[-1].content)
+        await thread_manager.add_message(thread.id, "user", user_query)
 
-asyncio.run(main())
+        try:
+            run = await run_manager.create_and_execute_run(thread.id)
+            messages = await thread_manager.get_messages(thread.id)
+            final_answer = messages[-1].content if messages else "No response generated"
+            print(f"Assistant: {final_answer}")
+        except RunExecutionError as e:
+            print(f"Run execution error: {str(e)}")
+        except FunctionNotFoundError as e:
+            print(f"Function not found error: {str(e)}")
+        except FunctionExecutionError as e:
+            print(f"Function execution error: {str(e)}")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 ## Core Components
